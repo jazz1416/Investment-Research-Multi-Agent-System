@@ -1,0 +1,35 @@
+[project]
+name = "multi-agent-financial-analysis-system"
+version = "0.1.0"
+description = "A reproducible multi-agent financial research system using SEC Form 4 data, market data, and financial news."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "numpy>=2.1.0",
+    "openai>=3.16.2",
+    "pandas>=2.2.2",
+    "pydantic>=2.9.0",
+    "python-dotenv>=1.0.1",
+    "requests>=2.32.3",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

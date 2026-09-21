@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# uv / virtual environments
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Local data and caches
+# Keep folder documentation/placeholders, ignore generated source data.
+data/raw/*
+data/cache/*
+data/processed/*
+!data/raw/.gitkeep
+!data/cache/.gitkeep
+!data/processed/.gitkeep
+!data/README.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
