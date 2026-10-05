@@ -74,15 +74,21 @@ def run_evaluator_optimizer_workflow(
                 print(f"[{ticker}] Reached max iterations ({max_iterations}). Finalizing current draft.")
             break
 
+        # Helps communication between evaluator and optimizer
+        feedback_prompt = f"""
+        EVALUATOR CRITIQUE:
+        - Overall Score: {eval_result.overall_score}/10
+        - Main Failure Reason: {eval_result.failure_reason}
+        - Refinement Feedback: {eval_result.refinement_feedback}
+        """
+        
         # Refine draft using optimizer
         print(f"[{ticker}] Refining draft based on evaluator feedback...")
         current_draft = optimize_draft(
             current_draft=current_draft,
-            feedback=eval_result.refinement_feedback,
-            missing_elements=eval_result.missing_elements,
+            feedback=feedback_prompt,
             raw_evidence=raw_evidence,
-            overall_score=eval_result.overall_score,
-            memory_context=memory_context
+            missing_elements=eval_result.missing_elements
         )
 
     # Update memory storage with final results
