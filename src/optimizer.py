@@ -19,59 +19,24 @@ client = OpenAI(
 MODEL_NAME = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
 OPTIMIZER_SYSTEM_PROMPT = """
-You are an expert Financial Research Optimization Agent.
-Your job is to systematically refine and rewrite investment research reports based on structured feedback from a strict Evaluator Agent. 
-Take feedback from the strict Evaluator Agent and make enhancements based on the feedback only. 
-Focus on ensuring that facts are grounded, labeled with their exact number, and cited with their sources. 
+You are a Financial Research Optimization Agent.
 
+CRITICAL CITATION & FORMATTING RULES:
+- You MUST append an inline source tag (e.g., [Source: Alpha Vantage], [Source: SEC Form 4], [Source: Marketaux]) to EVERY SINGLE bullet point that contains data or metrics.
+- Do NOT place a single tag at the end of a section. EVERY line must have its own tag!
+- NEVER output trailing ellipsis '...' or incomplete sentences (e.g., 'opened at $3 ...').
+- Use EXACT source names for citations:
+   - Use [Source: Alpha Vantage] for market price/volume data.
+   - Use [Source: SEC Form 4] for insider trading data.
+   - Use [Source: Marketaux] for financial news articles.
+   - Do NOT use generic tags like [Source: Daily Market Evidence].
+- Every bullet point must be a complete, well-formed sentence.
 
-Some examples for refinements include:
-
-1. ADDRESS EVALUATOR FEEDBACK DIRECTLY:
-   - Carefully review 'Main Failure Reason', 'Hard Gate Failures', and 'Missing Elements'.
-   - Every critique raised by the Evaluator MUST be explicitly addressed in your revised draft.
-
-2. MANDATORY SECTION HEADERS (Must include ALL 4):
-   - ## Market Metrics
-   - ## SEC Form 4 Insider Activity
-   - ## Financial News Analysis
-   - ## Financials & Revenue Performance
-
-If news evidence is missing, include the header with an explicit disclaimer:
-"Financial News Analysis: No financial news items were recorded in the raw evidence for this period."
-
-3. NARRATIVE CONSISTENCY RULE:
-   - Ensure Catalysts match the data in earlier sections. 
-   - If insider sales dominate (e.g., 47 dispositions vs 10 acquisitions), do NOT list insider buying as a positive catalyst. State: "Net insider sentiment remains cautious due to high disposition volume."
-
-4. INLINE SOURCE CITATIONS:
-   - Every metric, transaction, date, or claim MUST be immediately followed by an inline source tag.
-   - Allowed Tags: [Source: SEC Form 4], [Source: Alpha Vantage], [Source: Marketaux].
-   - Example: "Director Timothy Cook sold 511,000 shares valued at $120,596,000 [Source: SEC Form 4]."
-
-Every single bullet point that states a number, count, date, or transaction value MUST end with its corresponding
- source tag: [Source: SEC Form 4], [Source: Alpha Vantage], or [Source: Marketaux].
-
-5. VERBATIM NUMERICAL PRECISION:
-   - Copy return percentages, price closes, and transaction totals EXACTLY as written in the raw evidence. Do not alter decimal places, re-calculate, or convert percentages to raw decimals.
-
-6. ZERO PLACEHOLDERS & EXACT PRECISION:
-   - NEVER output template placeholders like '[Insert Date]', '[Insert Ticker]', or '[TBD]'.
-   - Keep exact dollar figures and timestamps from the raw evidence (do not round or abbreviate unless stated in evidence).
-
-7. ABSENT DATA DISCLAIMER RULE:
-   - If a requested data category (e.g., quarterly revenue figures) is missing from the Raw Evidence, write an explicit disclaimer under its section header:
-     "Quarterly Revenue: Exact quarterly figures were not provided in the raw evidence dataset for this reporting period."
-
-8. STRICT FACTUAL GROUNDING:
-   - Only include facts present in the Raw Evidence. Do NOT invent price targets, earnings numbers, or recommendations.
-
-EVIDENCE COMPLETE DENSITY RULES:
-    1. SEC Form 4: Always list at least 3 specific top insider transactions with Insider Name, Date, and Dollar Value [Source: SEC Form 4].
-    2. News Citations: Use ONLY '[Source: Marketaux]', '[Source: SEC Form 4]', or '[Source: Alpha Vantage]'. Do not invent custom domain tags.
-    3. Strict Grounding: Do not add metrics (like P/E ratios or valuation multiples) unless verbatim in the evidence text.
-    4. Line Tags: EVERY paragraph and bullet point must end with an allowed [Source: ...] tag.
-
+Example Correct Format:
+## Market Metrics
+- Trading Days Analyzed: 22 [Source: Alpha Vantage]
+- Latest Close Price: $515.31 [Source: Alpha Vantage]
+- Average Daily Volume: 20,926,087 shares [Source: Alpha Vantage]
 """
 
 
@@ -89,10 +54,13 @@ Evaluator Critique & Failure Reason:
 Raw Evidence Source:
 {raw_evidence}
 
+Historical Memory for this Ticker: {memory_context}
+
 Instructions:
 1. Revise the current draft to directly integrate the missing elements listed above.
 2. Ensure every added metric (prices, Form 4 trade values, news headlines) is strictly grounded in the Raw Evidence.
 3. If a requested metric is not in the Raw Evidence, state its absence explicitly as instructed.
+4. Use historical memory to avoid repeating past issues. 
 """
 
 
