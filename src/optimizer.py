@@ -54,10 +54,13 @@ Evaluator Critique & Failure Reason:
 Raw Evidence Source:
 {raw_evidence}
 
+Historical Memory for this Ticker: {memory_context}
+
 Instructions:
 1. Revise the current draft to directly integrate the missing elements listed above.
 2. Ensure every added metric (prices, Form 4 trade values, news headlines) is strictly grounded in the Raw Evidence.
 3. If a requested metric is not in the Raw Evidence, state its absence explicitly as instructed.
+4. Use historical memory to avoid repeating past issues. 
 """
 
 
