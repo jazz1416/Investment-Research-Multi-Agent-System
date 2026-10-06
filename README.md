@@ -129,6 +129,7 @@ data.
 
 - The evaluator scores a draft from 1 to 10 on factual grounding, completeness, and clarity.
   A draft passes when the overall score and factual grounding are both 8 or higher.
+- Evaluator runs on a hybrid model of coded strict guidelines and using an LLM as a judge only if guidelines pass.
 - The optimizer rewrites the draft using the evaluator's feedback and the raw evidence.
 - The workflow repeats evaluation and refinement up to three times or until the draft passes.
 - Each run's score and notes are saved by ticker and used as context in later runs.
@@ -153,7 +154,7 @@ memory using `run_full_research(ticker)`.
 | `news_agent.py`, `market_agent.py`, `insider_agent.py` | Specialist agents |
 | `synthesis_agent.py` | Risks and catalysts from specialist results |
 | `orchestrator.py` | Planner, router, and specialist workflow |
-| `evaluator.py` | LLM-based quality evaluation |
+| `evaluator.py` | Hybrid LLM-based quality evaluation |
 | `optimizer.py` | LLM-based refinement |
 | `eval_opt_workflow.py` | Evaluation and refinement loop with memory |
 | `memory.py` | Run history stored per ticker |
