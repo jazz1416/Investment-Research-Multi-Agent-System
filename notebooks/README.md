@@ -9,7 +9,9 @@ Saved files on disk are the handoff contract between stages. Downstream notebook
 -> 01_data_preprocessing.ipynb
 -> 02_evidence_assembly.ipynb
 -> 03_news_processing_chain.ipynb
--> Planner / Router / Specialist Agents
+-> 04_planner_router_orchestration.ipynb
+-> 05_evaluator_optimizer_workflow.ipynb
+-> 06_full_research_workflow.ipynb
 ```
 
 ## Notebook Handoff Table
@@ -20,6 +22,9 @@ Saved files on disk are the handoff contract between stages. Downstream notebook
 | 01 | `01_data_preprocessing.ipynb` | Clean and validate data | `data/raw/*.csv` | cleaned datasets + manifest |
 | 02 | `02_evidence_assembly.ipynb` | Align evidence by ticker/date | cleaned datasets | `daily_evidence.csv` |
 | 03 | `03_news_processing_chain.ipynb` | Classify -> extract -> summarize | `news_clean.csv` | `news_research_results.csv` |
+| 04 | `04_planner_router_orchestration.ipynb` | Test agent routing | cleaned datasets |
+| 05 | `05_evaluator_optimizer_workflow.ipynb` | Memory -> Evaluate -> Optimize | cleaned datasets | `agent_memory.json` |
+| 06 | `06_full_research_workflow.ipynb` | Generate -> Evaluate -> Optimize | cleaned datasets |
 
 # 00 - Data Ingestion
 
@@ -28,6 +33,7 @@ Sources:
 - SEC EDGAR
 - Alpha Vantage
 - Marketaux
+- yfinance
 
 Outputs:
 
@@ -173,6 +179,51 @@ When `FORCE_NEWS_CHAIN=false`, already processed URLs are reused/skipped.
 
 Quality checks include missing categories, missing summaries, missing URLs, duplicate URLs, invalid categories, and category distribution.
 
+## 04 - Planner Router Orchestration
+Tests planning and routing layers.
+
+Workflow:
+
+```text
+PLAN
+-> ROUTE
+-> run specialist
+-> synthesize
+```
+
+
+## 05 - Evaluator Optimizer Workflow
+Tests Evaluator-Optimizer workflow and generates memory.
+
+Workflow:
+
+```text
+draft
+-> EVALUATE
+-> OPTIMIZE till passes or `max_iterations` reached
+-> save final draft and run history
+-> output final draft
+```
+
+
+## 06 - Full Research Workflow
+Test full workflow with initial draft generation
+
+Workflow:
+
+```text
+plan
+-> route
+-> specialist agents
+-> synthesis
+-> build research draft
+-> evaluate
+-> refine
+-> memory
+```
+
+
+
 ## Handoff Boundary
 
 Notebook 03 completes:
@@ -186,3 +237,21 @@ ingest
 ```
 
 It does not implement Planner behavior, Router behavior, specialist coordination, evaluator refinement, or cross-run memory.
+
+Notebook 04 completes:
+
+```text
+routing
+planner
+specialist coordinator
+```
+It does not implement Evaluator behavior, Optimizer behavior, or cross-run memory.
+
+Notebook 05 completes:
+
+```text
+memory
+evaluator
+optimizer
+```
+It does not implement the creation of the initial draft.
