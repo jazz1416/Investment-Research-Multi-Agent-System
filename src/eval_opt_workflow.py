@@ -88,6 +88,7 @@ def run_evaluator_optimizer_workflow(
             current_draft=current_draft,
             feedback=feedback_prompt,
             raw_evidence=raw_evidence,
+            memory_context=memory_context,
             missing_elements=eval_result.missing_elements
         )
 
