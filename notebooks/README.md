@@ -1,257 +1,45 @@
-# Notebook Pipeline
+# Notebooks — Final Submission and Development Workflow
 
-Saved files on disk are the handoff contract between stages. Downstream notebooks should load saved outputs rather than repeat upstream work.
+## Primary final submission
 
-## Pipeline
+Open **`Investment_Research_Multi_Agent_System_Final.ipynb`**. This notebook embeds the 17 originally modular `src` implementations directly as visible, executable Python cells and then executes the seven research workflow stages. It does **not** require `from src...` imports or hidden registration of the source code.
 
-```text
-00_data_ingestion.ipynb
--> 01_data_preprocessing.ipynb
--> 02_evidence_assembly.ipynb
--> 03_news_processing_chain.ipynb
--> 04_planner_router_orchestration.ipynb
--> 05_evaluator_optimizer_workflow.ipynb
--> 06_full_research_workflow.ipynb
-```
+Run in cell order from the project repository root with Python 3.12 and the environment configured as described in the [root README](../README.md). The notebook writes files to `data/raw/` and `data/processed/`; those files are still used as handoffs within the integrated run.
 
-## Notebook Handoff Table
+## Original development notebooks (reference)
 
-| # | Notebook | Purpose | Reads | Writes |
-|---|---|---|---|---|
-| 00 | `00_data_ingestion.ipynb` | Retrieve external data | APIs | `data/raw/*.csv` |
-| 01 | `01_data_preprocessing.ipynb` | Clean and validate data | `data/raw/*.csv` | cleaned datasets + manifest |
-| 02 | `02_evidence_assembly.ipynb` | Align evidence by ticker/date | cleaned datasets | `daily_evidence.csv` |
-| 03 | `03_news_processing_chain.ipynb` | Classify -> extract -> summarize | `news_clean.csv` | `news_research_results.csv` |
-| 04 | `04_planner_router_orchestration.ipynb` | Test agent routing | cleaned datasets |
-| 05 | `05_evaluator_optimizer_workflow.ipynb` | Memory -> Evaluate -> Optimize | cleaned datasets | `agent_memory.json` |
-| 06 | `06_full_research_workflow.ipynb` | Generate -> Evaluate -> Optimize | cleaned datasets |
+These seven separately maintained notebooks document the original team development process. They are **not required in addition to the standalone submission**.
 
-# 00 - Data Ingestion
+| Original notebook | Stage | Main output |
+|---|---|---|
+| `00_data_ingestion.ipynb` | Ingest external APIs | `data/raw/{sec_form4,market_data,news}.csv` |
+| `01_data_preprocessing.ipynb` | Clean, normalize, filter relevance | cleaned CSV files, manifest |
+| `02_evidence_assembly.ipynb` | Merge sources on ticker/date | `daily_evidence.csv` |
+| `03_news_processing_chain.ipynb` | Classify → extract → summarize | `news_research_results.csv` |
+| `04_planner_router_orchestration.ipynb` | Plan, route, specialists, synthesize | in-notebook research results |
+| `05_evaluator_optimizer_workflow.ipynb` | Score, refine, track memory | evaluation history and memory |
+| `06_full_research_workflow.ipynb` | Integrate research and evaluation | final report and history |
 
-Sources:
+For separate development notebooks, run **00 → 01 → 02 → 03 → 04 → 05 → 06**. The 06 notebook also performs full research integration and therefore may repeat some work performed during stage-specific testing; reserve stage 05 for isolated testing.
 
-- SEC EDGAR
-- Alpha Vantage
-- Marketaux
-- yfinance
+## Final notebook layout
 
-Outputs:
+1. Environment setup and 17 source implementation sections
+2. Ingestion and snapshot reuse
+3. Data preprocessing and quality checks
+4. Daily evidence assembly
+5. News LLM prompt chaining and resume behavior
+6. Planner, router, specialist agents, and synthesis
+7. Draft creation and source-grounded evidence
+8. Evaluator–optimizer, final outputs, and memory
 
-```text
-data/raw/sec_form4.csv
-data/raw/market_data.csv
-data/raw/news.csv
-```
+## Practical usage and limitations
 
-Use `FORCE_REFRESH=true` only when fresh source data is intentionally required.
+- Ingestion calls SEC, Alpha Vantage (with yfinance fallback), and Marketaux; costs or rate limits may apply.
+- Configure `.env` at the project root; never share API keys. With `FORCE_REFRESH=false`, previous raw snapshots are reused when present.
+- With `FORCE_NEWS_CHAIN=false`, the news chain reuses already processed URLs where supported. Default `NEWS_CHAIN_LIMIT=10` reduces cost.
+- The final integrated evidence context is **bounded** (12 daily rows, 10 news rows, ~25,000 characters). This makes API calls cheaper but means LLM fact-checking is not exhaustive.
+- Keep the project kernel and working directory consistent. **Restart Kernel → Run All** after editing `.env` or code.
+- The complete live run still requires source access and sufficient LLM credits. Distinguish notebook syntax validation from end-to-end runtime verification.
 
-# 01 - Data Preprocessing
-
-SEC flow:
-
-```text
-normalize columns
--> normalize ticker
--> parse transaction dates
--> convert numeric fields
--> calculate transaction value
--> remove invalid rows
--> remove duplicates
-```
-
-Market flow:
-
-```text
-normalize columns
--> normalize ticker
--> parse date
--> convert OHLCV fields
--> remove duplicates
--> calculate daily_return
--> calculate volume_change
-```
-
-News flow:
-
-```text
-normalize columns
--> normalize ticker
--> parse published_at
--> clean text
--> remove duplicates
--> build combined text
--> assign relevance_score
--> remove score-0 articles
-```
-
-Relevance rule:
-
-```text
-2 = company/ticker appears in title
-1 = company/ticker appears in description/content
-0 = no direct company reference
-```
-
-Outputs:
-
-```text
-data/processed/sec_form4_clean.csv
-data/processed/market_data_clean.csv
-data/processed/news_clean.csv
-data/processed/preprocessing_manifest.json
-```
-
-# 02 - Evidence Assembly
-
-Uses `ticker + date` as the canonical daily key.
-
-Outer-style joins preserve market-only, SEC-only, and news-only dates.
-
-Output:
-
-```text
-data/processed/daily_evidence.csv
-```
-
-# 03 - News Processing Chain
-
-Workflow:
-
-```text
-news_clean.csv
--> CLASSIFY
--> category
--> EXTRACT
--> structured facts
--> SUMMARIZE
--> research record
-```
-
-Supported categories:
-
-```text
-earnings
-product_service
-management
-regulation_legal
-merger_acquisition
-analyst_investor
-macro_market
-other
-```
-
-Structured extraction fields:
-
-```text
-event
-key_facts
-people
-organizations
-financial_numbers
-```
-
-Output:
-
-```text
-data/processed/news_research_results.csv
-```
-
-Expected fields:
-
-```text
-ticker
-published_at
-title
-source
-url
-relevance_score
-category
-classification_reason
-event
-key_facts
-people
-organizations
-financial_numbers
-summary
-```
-
-When `FORCE_NEWS_CHAIN=false`, already processed URLs are reused/skipped.
-
-Quality checks include missing categories, missing summaries, missing URLs, duplicate URLs, invalid categories, and category distribution.
-
-## 04 - Planner Router Orchestration
-Tests planning and routing layers.
-
-Workflow:
-
-```text
-PLAN
--> ROUTE
--> run specialist
--> synthesize
-```
-
-
-## 05 - Evaluator Optimizer Workflow
-Tests Evaluator-Optimizer workflow and generates memory.
-
-Workflow:
-
-```text
-draft
--> EVALUATE
--> OPTIMIZE till passes or `max_iterations` reached
--> save final draft and run history
--> output final draft
-```
-
-
-## 06 - Full Research Workflow
-Test full workflow with initial draft generation
-
-Workflow:
-
-```text
-plan
--> route
--> specialist agents
--> synthesis
--> build research draft
--> evaluate
--> refine
--> memory
-```
-
-
-
-## Handoff Boundary
-
-Notebook 03 completes:
-
-```text
-ingest
--> preprocess
--> classify
--> extract
--> summarize
-```
-
-It does not implement Planner behavior, Router behavior, specialist coordination, evaluator refinement, or cross-run memory.
-
-Notebook 04 completes:
-
-```text
-routing
-planner
-specialist coordinator
-```
-It does not implement Evaluator behavior, Optimizer behavior, or cross-run memory.
-
-Notebook 05 completes:
-
-```text
-memory
-evaluator
-optimizer
-```
-It does not implement the creation of the initial draft.
+The persisted CSV files remain the interface between data processing, specialist agents, and evaluation even though the code is now visible inside a single notebook.
