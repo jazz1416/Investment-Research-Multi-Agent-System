@@ -325,8 +325,6 @@ Actual files are generated when stages execute. The repository may omit source d
 
 - [`notebooks/README.md`](notebooks/README.md) — notebook execution sequence, standalone/development distinction
 - [`src/README.md`](src/README.md) — modular source components and boundaries
-- [`docs/handoff.md`](docs/handoff.md) — output contracts, team integration, reproduction checklist
-- [`docs/decisions.md`](docs/decisions.md) — technical decisions, including final integration updates
 
 ## Academic and responsible-use note
 
