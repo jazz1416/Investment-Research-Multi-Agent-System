@@ -1,9 +1,10 @@
 import datetime
-from typing import Dict, Any, Tuple, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-from src.evaluator import evaluate_draft, EvaluationResult
-from src.optimizer import optimize_draft
+from src.evaluator import EvaluationResult, evaluate_draft
 from src.memory import ResearchMemoryStore
+from src.optimizer import optimize_draft
+
 
 # Run Evaluator-Optimizer workflow
 def run_evaluator_optimizer_workflow(

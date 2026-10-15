@@ -1,8 +1,9 @@
 import os
-from typing import List
-from pydantic import BaseModel, Field
-from openai import OpenAI
 import re
+from typing import List
+
+from openai import OpenAI
+from pydantic import BaseModel, Field
 
 # Initialize client using environment variables configured in .env
 api_key = os.getenv("LLM_API_KEY")

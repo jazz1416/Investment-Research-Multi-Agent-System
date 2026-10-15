@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
+
 from openai import OpenAI
-from datetime import datetime
 
 # Read env variables
 api_key = os.getenv("LLM_API_KEY")
